@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Controls;
 using System.Collections.Generic;
 
@@ -13,7 +13,7 @@ namespace lb2_2sem.Command
             { "sqrt", Math.Sqrt },
             { "Pi", number => number * Math.PI },
             { "exp", Math.Exp },
-            { "n^2", number => Math.Pow(number, 2) },
+            { "n^2", number => Math.Pow(number,2)},
             { "log", Math.Log }
         };
 
@@ -22,7 +22,6 @@ namespace lb2_2sem.Command
             _textBox = textBox;
             _operators = operators;
         }
-
         public void Execute()
         {
             string expression = _textBox.Text.Trim();
@@ -37,7 +36,6 @@ namespace lb2_2sem.Command
                 }
             }
         }
-
         private void MathOperation(string mathOperator)
         {
             string expression = _textBox.Text;
@@ -54,15 +52,39 @@ namespace lb2_2sem.Command
 
                     if (double.TryParse(lastNumberString, out double number))
                     {
-                        if (_mathOperators.TryGetValue(mathOperator, out Func<double, double> operation))
+                        if (mathOperator == "sqrt" && (expression.StartsWith("-")))
                         {
-                            double result = operation.Invoke(number);
-                            _textBox.Text = expression.Substring(0, expression.Length - lastNumberString.Length) + result;
+                            _textBox.Text = "Error: Cannot take square root of a negative number.";
                         }
+                        else if (mathOperator == "log" && (expression.StartsWith("-")))
+                        {
+                            _textBox.Text = "Error: Cannot take logarithm of non-positive or zero number.";
+                        }
+                        else
+                        {
+                            if (_mathOperators.TryGetValue(mathOperator, out Func<double, double> operation))
+                            {
+                                try
+                                {
+                                    double result = operation.Invoke(number);
+                                    _textBox.Text = expression.Substring(0, expression.Length - lastNumberString.Length) + result;
+                                }
+                                catch (Exception ex)
+                                {
+                                    _textBox.Text = "Error: " + ex.Message;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        _textBox.Text = "Error: Invalid number.";
                     }
                 }
             }
         }
 
     }
+
 }
+
